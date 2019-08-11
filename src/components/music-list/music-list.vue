@@ -58,8 +58,8 @@ export default{
 		 }
 	 },
 	 mounted(){
-		 var imageHeight = document.querySelector('.bg-image').offsetHeight;//this.$refs.bgImage.offsetHeight
-		 this.$refs.list.$el.style.top = imageHeight+"px";
+		 this.imageHeight = document.querySelector('.bg-image').offsetHeight;//this.$refs.bgImage.offsetHeight
+		 this.$refs.list.$el.style.top = this.imageHeight+"px";
 
 
 	 },
@@ -68,7 +68,9 @@ export default{
 			 this.$router.go(-1);
 		 },
 		 random(){},
-		 scroll(){},
+		 scroll(pos){
+		  this.scrollY = pos.y;
+		 },
 		 selectItem(song,index){
 
 		 }
@@ -76,6 +78,26 @@ export default{
 	 components:{
 		 scroll,
 		 SongList
+	 },
+	 watch:{
+	   scrollY(val){
+	     var maxHeight = -this.imageHeight + RESERVED_HEIGHT;
+		 if(val<0 && val > maxHeight){
+		   this.$refs.layer.style.zIndex = 2;
+		   this.$refs.list.$el.style.zIndex = 3;
+		 }
+		 
+		 if(val < maxHeight){
+		   this.$refs.bgImage.style.zIndex = 2;
+		   this.$refs.bgImage.style.paddingTop = 0;
+		   this.$refs.bgImage.style.height = "40px";
+		   this.$refs.list.$el.style.zIndex = 0;
+		   this.$refs.layer.style.zIndex = 0;
+		 }
+		 
+		 this.$refs.layer.style.transform=`translate3d(0,${val}px,0)`;
+
+	   }
 	 },
 	 computed:{
 		 bgStyle(){
@@ -172,7 +194,7 @@ export default{
       background: $color-background;
 	  .song-list-wrapper{
         padding: 20px 30px;
-		.a{line-height:40px;color:#fff}
+		.a{line-height:40px;color:#fff;font-size:14px}
 	  }		
 	}
     .bg-layer{
