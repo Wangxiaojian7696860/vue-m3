@@ -7,5 +7,20 @@ export const mutations = {
     },
     changePlaying(state,item){
         state.playing = item
-    }
+    },
+	changeFullScreen(state,item){
+		state.fullScreen = item
+	},
+	changePlayList(state,item){
+		state.playList = item
+	},
+	changeSequenceList(state,item){
+		state.sequenceList = item
+	},
+	changeCurrentIndex(state,item){
+		state.currentIndex = item
+	},
+	changeMode(state,item){
+		state.mode = item
+	}		
 }
