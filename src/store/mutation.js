@@ -4,5 +4,8 @@ export const mutations = {
     },
     changeSinger(state,item){
         state.singer = item
+    },
+    changePlaying(state,item){
+        state.playing = item
     }
 }
