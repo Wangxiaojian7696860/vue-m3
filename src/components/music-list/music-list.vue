@@ -33,7 +33,7 @@
 <script>
 import scroll from "../../base/scroll/scroll.vue"
 import SongList from '../../base/song-list/song-list'
-//import {mapActions} from 'vuex'
+import {mapActions} from 'vuex'
 const RESERVED_HEIGHT = 40
 export default{
     props:{
@@ -60,7 +60,7 @@ export default{
 	 mounted(){
 		 this.imageHeight = document.querySelector('.bg-image').offsetHeight;//this.$refs.bgImage.offsetHeight
 		 this.$refs.list.$el.style.top = this.imageHeight+"px";
-
+         this.minTransalteY = -this.imageHeight + RESERVED_HEIGHT;
 
 	 },
 	 methods:{
@@ -69,35 +69,46 @@ export default{
 		 },
 		 random(){},
 		 scroll(pos){
-		  this.scrollY = pos.y;
+           this.scrollY = pos.y;
 		 },
 		 selectItem(song,index){
-
-		 }
+            this.selectPlay({list:this.songs,index});
+		 },
+		 ...mapActions(['selectPlay','randomPlay'])
 	 },
-	 components:{
-		 scroll,
-		 SongList
-	 },
-	 watch:{
+	watch:{
 	   scrollY(val){
-	     var maxHeight = -this.imageHeight + RESERVED_HEIGHT;
-		 if(val<0 && val > maxHeight){
+
+		 if(val<0 && val > this.minTransalteY){
 		   this.$refs.layer.style.zIndex = 2;
 		   this.$refs.list.$el.style.zIndex = 3;
+		   this.$refs.bgImage.style.height = "0";
+		   this.$refs.bgImage.style.paddingTop = "70%";
+		   this.$refs.playBtn.style.display = "block";
+		   this.size = 1;
 		 }
 		 
-		 if(val < maxHeight){
+		 if(val <= this.minTransalteY){
 		   this.$refs.bgImage.style.zIndex = 2;
 		   this.$refs.bgImage.style.paddingTop = 0;
 		   this.$refs.bgImage.style.height = "40px";
 		   this.$refs.list.$el.style.zIndex = 0;
 		   this.$refs.layer.style.zIndex = 0;
+		   this.$refs.playBtn.style.display = "none";
 		 }
-		 
+		 if(val>0){
+		   this.size = 1+ val/(this.imageHeight);
+		   this.$refs.bgImage.style.zIndex = 2;
+		   this.$refs.list.$el.style.zIndex = 0;
+		   this.$refs.layer.style.zIndex = 0;		   
+		 }
 		 this.$refs.layer.style.transform=`translate3d(0,${val}px,0)`;
-
+		 this.$refs.bgImage.style.transform=`scale(${this.size},${this.size})`;
 	   }
+	 },
+	 components:{
+		 scroll,
+		 SongList
 	 },
 	 computed:{
 		 bgStyle(){
@@ -194,7 +205,7 @@ export default{
       background: $color-background;
 	  .song-list-wrapper{
         padding: 20px 30px;
-		.a{line-height:40px;color:#fff;font-size:14px}
+		.a{line-height:40px;color:#fff}
 	  }		
 	}
     .bg-layer{
