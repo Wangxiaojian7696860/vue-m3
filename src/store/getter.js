@@ -18,6 +18,6 @@ export const getters = {
 	   return state.currentIndex;	   
    },   
    currentSong(state){
-	   return state.playList[state.currentIndex];
+	   return state.playList[state.currentIndex] || {};
    }
 }
