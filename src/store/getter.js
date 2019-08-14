@@ -13,7 +13,10 @@ export const getters = {
    },   
    getPlaylist(state){
 	   return state.playList;	   
-   },     
+   },   
+   getSequenceList(state){
+	  return state.sequenceList;	   
+   },
    getCurrentIndex(state){
 	   return state.currentIndex;	   
    },   
