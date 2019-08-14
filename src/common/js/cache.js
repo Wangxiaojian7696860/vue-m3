@@ -18,7 +18,7 @@ export function saveFavorite(song) {
 	}
 	
 	var index = songs.findIndex(function(item){
-		return item.id = song.id;					 
+		return item.id == song.id;					 
 	});
 	
 	if (index >= 0) {
@@ -47,7 +47,7 @@ export function deleteFavorite(song){
 	}
 	
 	var index = songs.findIndex(function(item){
-		return item.id = song.id;					 
+		return item.id == song.id;					 
 	});
 	
 	if(index > -1){
@@ -81,17 +81,19 @@ export function savePlay(song){
 	}else{
 	   songs = JSON.parse(songs)
 	}	
-	
+
 	var index = songs.findIndex(function(item){
-		return item.id = song.id;					 
+		return item.id == song.id;					 
 	});	
 	
 	if(index===0){
+		
 		return;//列表中已经有歌曲 并且在第一条 所以不用处理 了 直接返回
 	}
 	if(index >0){
 		songs.splice(index,1);//有相同的歌曲在列表中 先将其删除 后再添加 并且放在第一位
 	}
+	
 	songs.unshift(song);
 	
 	if(songs.length > PLAY_MAX_LEN){
