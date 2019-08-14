@@ -17,7 +17,19 @@ export const getters = {
    getCurrentIndex(state){
 	   return state.currentIndex;	   
    },   
+   getMode(state){
+       return state.mode;
+   },
    currentSong(state){
 	   return state.playList[state.currentIndex] || {};
-   }
+   },
+   favoriteList:(state)=>{
+    return state.favoriteList
+  },
+  playHistory:(state)=>{
+     return state.playHistory
+  },
+  searchHistory:(state)=>{
+      return state.searchHistory
+  }
 }

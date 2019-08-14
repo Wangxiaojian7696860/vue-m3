@@ -22,5 +22,14 @@ export const mutations = {
 	},
 	changeMode(state,item){
 		state.mode = item
-	}		
+	},
+	changePlayhistory(state,item){
+		state.playHistory = item
+	},
+	changeSearchhistory(state,item){
+		state.searchHistory = item
+	},
+	changeFavoriteList(state,item){
+		state.favoriteList = item
+	}				
 }

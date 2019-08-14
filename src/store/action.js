@@ -1,3 +1,4 @@
+import {saveSearch, savePlay, saveFavorite} from '../common/js/cache'
 export const actions = {
     selectPlay({commit,state},{list,index}){
 		
@@ -6,5 +7,9 @@ export const actions = {
 		commit('changeCurrentIndex',index);
 		commit('changePlaying',true);
 		commit('changeFullScreen',true);
-    }
+	},
+	savePlayHistory({commit,state},song){
+		commit('changePlayhistory', savePlay(song))
+	}
+	
 }
