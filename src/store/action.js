@@ -1,4 +1,4 @@
-import {saveSearch, savePlay, saveFavorite} from '../common/js/cache'
+import {saveSearch, savePlay, saveFavorite,deleteFavorite} from '../common/js/cache'
 export const actions = {
     selectPlay({commit,state},{list,index}){
 		
@@ -10,6 +10,12 @@ export const actions = {
 	},
 	savePlayHistory({commit,state},song){
 		commit('changePlayhistory', savePlay(song))
-	}
+	},
+	saveFavorite({commit,state},song){
+		commit('changeFavoriteList', saveFavorite(song))
+	},
+	deleteFavorite({commit,state},song){
+		commit('changeFavoriteList', deleteFavorite(song))
+	}	
 	
 }
