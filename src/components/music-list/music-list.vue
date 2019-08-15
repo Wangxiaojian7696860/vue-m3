@@ -61,7 +61,6 @@ export default{
 		 this.imageHeight = document.querySelector('.bg-image').offsetHeight;//this.$refs.bgImage.offsetHeight
 		 this.$refs.list.$el.style.top = this.imageHeight+"px";
          this.minTransalteY = -this.imageHeight + RESERVED_HEIGHT;
-
 	 },
 	 methods:{
 		 back(){
@@ -74,11 +73,13 @@ export default{
 		 selectItem(song,index){
             this.selectPlay({list:this.songs,index});
 		 },
+		 random(){
+		    this.randomPlay({list:this.songs})
+		 },
 		 ...mapActions(['selectPlay','randomPlay'])
 	 },
 	watch:{
 	   scrollY(val){
-
 		 if(val<0 && val > this.minTransalteY){
 		   this.$refs.layer.style.zIndex = 2;
 		   this.$refs.list.$el.style.zIndex = 3;
