@@ -46,8 +46,8 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-				<progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
-			</div>
+              <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
+            </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
@@ -64,7 +64,7 @@
               <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon icon-not-favorite"></i>
+              <i class="icon icon-not-favorite" :class="getFavorite" @click="toggleFavorite"></i>
             </div>
           </div>
         </div>
@@ -89,7 +89,14 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url" @play="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
+    <audio
+      ref="audio"
+      :src="currentSong.url"
+      @play="ready"
+      @error="error"
+      @timeupdate="updateTime"
+      @ended="end"
+    ></audio>
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -98,7 +105,7 @@ import Scroll from "../../base/scroll/scroll";
 import ProgressBar from "../../base/progress-bar/progress-bar";
 import ProgressCircle from "../../base/progress-circle/progress-circle";
 import { prefixStyle } from "../../common/js/dom";
-import {shuffle} from '../../common/js/util'
+import { shuffle } from "../../common/js/util";
 const transform = prefixStyle("transform");
 const transitionDuration = prefixStyle("transitionDuration");
 //Lyric 的api
@@ -114,7 +121,7 @@ const transitionDuration = prefixStyle("transitionDuration");
 export default {
   created() {
     //touch不需要添加get 和 set 所以在created这里定义
-	this.touch = {};
+    this.touch = {};
   },
 
   data() {
@@ -132,92 +139,99 @@ export default {
     back() {
       this.setFullScreen(false);
     },
-    changeMode(){
-	   var mode = this.getMode;
-	   mode = (mode+1)%3;
-	   this.setMode(mode);
-	   let list = null;
-	    if (mode === 2) {
-		  list = shuffle(this.getSequenceList)
-		} else {
-		   list = this.getSequenceList
-		}
-		  this.resetCurrentIndex(list)
-		  this.setPlaylist(list)	   
-	   
-	},
-	resetCurrentIndex(list){
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)	
-	},
+    changeMode() {
+      var mode = this.getMode;
+      mode = (mode + 1) % 3;
+      this.setMode(mode);
+      let list = null;
+      if (mode === 2) {
+        list = shuffle(this.getSequenceList);
+      } else {
+        list = this.getSequenceList;
+      }
+      this.resetCurrentIndex(list);
+      this.setPlaylist(list);
+    },
+    resetCurrentIndex(list) {
+      let index = list.findIndex(item => {
+        return item.id === this.currentSong.id;
+      });
+      this.setCurrentIndex(index);
+    },
+    toggleFavorite(){
+      if(this.isFavorite(this.currentSong)){
+        this.deleteFavorite(this.currentSong)
+      }else{
+        this.saveFavorite(this.currentSong)
+      }
+    },
     open() {
       this.setFullScreen(true);
     },
     ready() {
-		this.songReady = true;
-		this.savePlayHistory(this.currentSong);
-	},
+      this.songReady = true;
+      this.savePlayHistory(this.currentSong);
+    },
     error() {
       this.songReady = true;
     },
     updateTime(e) {
-		this.currentTime = e.target.currentTime//e.timeStamp/1000;
-	},
+      this.currentTime = e.target.currentTime; //e.timeStamp/1000;
+    },
     loop() {
-	    this.$refs.audio.currentTime = 0;
-		this.$refs.audio.play();	 
-		if(!this.getPlaying){
-			this.togglePlaying();
-		}	
-	},
+      this.$refs.audio.currentTime = 0;
+      this.$refs.audio.play();
+      if (!this.getPlaying) {
+        this.togglePlaying();
+      }
+    },
     prev() {
-		if(!this.songReady){
-          return
-		}
-		
-		if(this.getPlaylist==1){
-		   this.loop();
-		   return
-		}
-		var index = this.getCurrentIndex-1;
-		  if(index<0){
-		     index = this.getPlaylist.length-1;
-		  }			
-		this.setCurrentIndex(index);
-		if(!this.getPlaying){
-			this.togglePlaying();
-		}		
-		this.songReady = false;	
-	},
+      if (!this.songReady) {
+        return;
+      }
+
+      if (this.getPlaylist == 1) {
+        this.loop();
+        return;
+      }
+      var index = this.getCurrentIndex - 1;
+      if (index < 0) {
+        index = this.getPlaylist.length - 1;
+      }
+      this.setCurrentIndex(index);
+      if (!this.getPlaying) {
+        this.togglePlaying();
+      }
+      this.songReady = false;
+    },
     next() {
-		if(!this.songReady){
-          return
-		}
-		
-		if(this.getPlaylist==1){
-		   this.loop();
-		   return
-		}
-		var index = this.getCurrentIndex+1;
-		  if(index>this.getPlaylist.length-1){
-		     index = 0;
-		  }			
-		this.setCurrentIndex(index);
-		if(!this.getPlaying){
-			this.togglePlaying();
-		}		
-		this.songReady = false;			
-	},
+      if (!this.songReady) {
+        return;
+      }
+
+      if (this.getPlaylist == 1) {
+        this.loop();
+        return;
+      }
+      var index = this.getCurrentIndex + 1;
+      if (index > this.getPlaylist.length - 1) {
+        index = 0;
+      }
+      this.setCurrentIndex(index);
+      if (!this.getPlaying) {
+        this.togglePlaying();
+      }
+      this.songReady = false;
+    },
     end() {
-		var mode = this.getMode;
-		if(mode == 1){//单曲循环播放
- 		   this.loop();
-		   return          
-		}
-		this.next(); 
-	},
+      var mode = this.getMode;
+      if (mode == 1) {
+        //单曲循环播放
+        this.loop();
+        return;
+      }
+      this.next();
+    },
     enter() {},
     afterEnter() {},
     leave() {},
@@ -299,19 +313,18 @@ export default {
       this.touch.initiated = false;
     },
     togglePlaying() {
-		if (!this.songReady) {
-			return
-		}		
-		this.setPlaying(!this.getPlaying);
-	},
+      if (!this.songReady) {
+        return;
+      }
+      this.setPlaying(!this.getPlaying);
+    },
     onProgressBarChange(percent) {
-		var currentTime = percent * this.currentSong.duration;
-		this.$refs.audio.currentTime = currentTime;
-		if(!this.getPlaying){
-			this.togglePlaying();
-		}
-
-	},
+      var currentTime = percent * this.currentSong.duration;
+      this.$refs.audio.currentTime = currentTime;
+      if (!this.getPlaying) {
+        this.togglePlaying();
+      }
+    },
     format(interval) {
       interval = interval | 0;
       const minute = (interval / 60) | 0;
@@ -326,26 +339,31 @@ export default {
       }
       return num;
     },
+    	isFavorite(song) {
+      const index = this.favoriteList.findIndex((item) => {
+        return item.id === song.id
+      })
+      return index > -1
+    },
     ...mapMutations({
-	  setFullScreen: "changeFullScreen",
-	  setPlaying:"changePlaying",
-	  setCurrentIndex:"changeCurrentIndex",
-	  setMode:"changeMode",
-	  setPlaylist:"changePlayList"
+      setFullScreen: "changeFullScreen",
+      setPlaying: "changePlaying",
+      setCurrentIndex: "changeCurrentIndex",
+      setMode: "changeMode",
+      setPlaylist: "changePlayList"
     }),
-    ...mapActions(["savePlayHistory"])
+    ...mapActions(["savePlayHistory","saveFavorite","deleteFavorite"])
   },
   watch: {
     currentSong(newSong, oldSong) {
-      if(oldSong.id == newSong.id){
-		  return;
-	  }
-	  const audio = this.$refs.audio;
-	  clearTimeout(this.timer)
-	   this.timer = setTimeout(()=>{
-	      audio.play();
-	  },100)
-
+      if (oldSong.id == newSong.id) {
+        return;
+      }
+      const audio = this.$refs.audio;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        audio.play();
+      }, 100);
     },
     getPlaying() {
       const audio = this.$refs.audio;
@@ -378,15 +396,23 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration;
     },
+    getFavorite() {
+
+      if(this.isFavorite(this.currentSong)){
+         return 'icon-favorite'
+      }
+      return 'icon-not-favorite'
+    },    
     ...mapGetters([
       "getFullScreen",
       "getPlaying",
       "getCurrentIndex",
       "currentSong",
-	  "getPlaylist",
-	  "getSequenceList",
-	  "playHistory",
-	  "getMode"
+      "getPlaylist",
+      "getSequenceList",
+      "playHistory",
+      "getMode",
+      "favoriteList"
     ])
   },
   components: {
