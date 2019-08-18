@@ -1,5 +1,5 @@
 import {saveSearch, savePlay, saveFavorite,deleteFavorite} from '../common/js/cache'
-import {shuffle} from '../../common/js/util'
+import {shuffle} from '../common/js/util'
 export const actions = {
     selectPlay({commit,state},{list,index}){
 		
@@ -16,6 +16,22 @@ export const actions = {
 		commit('changeCurrentIndex',index);
 		commit('changePlaying',true);
 		commit('changeFullScreen',true);
+	},
+	deleteSongList({commit}){
+		commit('changeSequenceList',[]);
+		commit('changePlayList',[]);
+		commit('changeCurrentIndex',-1);
+		commit('changePlaying',false);		
+	},
+	deleteSong({commit,state},song){
+		var playlist = state.playList.slice();
+		var sequenceList = state.sequenceList.slice();
+		var currentIndex = state.currentIndex;	
+		playlist.splice(currentIndex,1);
+		sequenceList.splice(currentIndex,1);
+		currentIndex--;
+		
+		
 	},
 	savePlayHistory({commit,state},song){
 		commit('changePlayhistory', savePlay(song))

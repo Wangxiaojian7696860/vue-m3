@@ -27,10 +27,11 @@
 				      for(var item in res.data){
 					     if(item == this.getDisc.dissid){
 						   this.songs = this._normalizeSongs(res.data[item].list);		
+
 						 }
 					  }					
 				}
-			})			
+			})		
 		},
 		_normalizeSongs(data){
 			var ret = [];

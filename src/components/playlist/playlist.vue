@@ -4,14 +4,14 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon" :class="iconMode" @click="changeMode"></i>
+            <i class="icon" :class="iconMode()" @click="changeMode"></i>
             <span class="text">{{modeText}}</span>
             <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
-        <scroll ref="listContent" :data="sequenceList" class="list-content" :refreshDelay="refreshDelay">
+        <scroll ref="listContent" :data="getSequenceList" class="list-content" :refreshDelay="refreshDelay">
           <transition-group ref="list" name="list" tag="ul">
-            <li :key="item.id" class="item" v-for="(item,index) in sequenceList"
+            <li :key="item.id" class="item" v-for="(item,index) in getSequenceList"
                 @click="selectItem(item,index)">
               <i class="current" :class="getCurrentIcon(item)"></i>
               <span class="text">{{item.name}}</span>
@@ -35,18 +35,18 @@
         </div>
       </div>
       <confirm ref="confirm" @confirm="confirmClear" text="是否清空播放列表" confirmBtnText="清空"></confirm>
-      <add-song ref="addSong"></add-song>
+      <!--<add-song ref="addSong"></add-song>-->
     </div>
   </transition>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import {mapActions,mapGetters,mapMutations} from 'vuex'
   import {playMode} from '../../common/js/config'
   import {shuffle} from '../../common/js/util'
   import Scroll from '../../base/scroll/scroll'
   import Confirm from '../../base/confirm/confirm'
-  import AddSong from '../../components/add-song/add-song'
+
 
   export default {
     data() {
@@ -57,123 +57,92 @@
     },
     computed: {
       modeText() {
-        return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
+        return this.getMode === 0 ? '顺序播放' : this.getMode ===2 ? '随机播放' : '单曲循环'
       },
-	  getFavoriteIcon(song){
-	     if(isFavorite(song)){
-		    return "icon-favorite"
-		 }else{
-		    return "icon-not-favorite"
-		 }
+/*	  iconMode(){
+	     return this.getMode === 0 ? 'icon-sequence' : this.getMode === 1 ? 'icon-loop' : 'icon-random'
+	  },*/
+	  ...mapGetters(["getSequenceList","getMode","currentSong","favoriteList"])
+	 },
+     methods: {
+	  hide(){
+	    this.showFlag = false;
 	  },
-	  ...mapGetters(["favoriteList","getMode",getSequenceList]) 
-    },
-    methods: {
-      show() {
-        this.showFlag = true
-        setTimeout(() => {
-          this.$refs.listContent.refresh()
-          this.scrollToCurrent(this.currentSong)
-        }, 20)
-      },
-      hide() {
-        this.showFlag = false
-      },
+	  show(){
+	     this.showFlag = true;
+	  },
 	  changeMode(){
-	  
-	     var mode = (this.getMode+1)%3;
+		  var mode = this.getMode;
+		  mode = (mode + 1) % 3;
 		  this.setMode(mode);
-		  var list = null;
-		  
-		  if(mode===2){
-		    list = shuffle(this.getSequenceList);
-		  }else{
-		    list = this.getSequenceList;
+		  let list = null;
+		  if (mode === 2) {
+			list = shuffle(this.getSequenceList);
+		  } else {
+			list = this.getSequenceList;
 		  }
-		  let index = list.findIndex((item) => {
-              return item.id === this.currentSong.id
-          })
-		  this.setCurrentIndex(index);
-		  this.setPlayList(list);
-		  
+		  this.resetCurrentIndex(list);  
+		  this.setPlaylist(list);	
 	  },
-      showConfirm() {
-        this.$refs.confirm.show()
-      },
-      confirmClear() {
-        this.deleteSongList()
-        this.hide()
-      },
-	  toggleFavorite(song){
-	     if(isFavorite(song)){
-		    this.deleteFavorite(song);
-		 }else{
-		    this.saveFavorite(song);
-		 }
+	  showConfirm(){
+	    this.$refs.confirm.show()
 	  },
-	  isFavorite(song){
-	   var index = this.favoriteList.findIndex((item)=>{
-		     return item.id == song.id;
-		 });
-		 
-		 return index > -1;
-	  },
-      getCurrentIcon(item) {
+	  getCurrentIcon(item){
         if (this.currentSong.id === item.id) {
           return 'icon-play'
         }
         return ''
-      },
-      selectItem(item, index) {
-        if (this.mode === playMode.random) {
-          index = this.playList.findIndex((song) => {
-            return song.id === item.id
-          })
-        }
-        this.setCurrentIndex(index)
-        this.setPlayingState(true)
-      },
-      scrollToCurrent(current) {
-        const index = this.sequenceList.findIndex((song) => {
-          return current.id === song.id
-        })
-        this.$refs.listContent.scrollToElement(this.$refs.list.$el.children[index], 300)
-      },
-      deleteOne(item) {
-        this.deleteSong(item)
-        if (!this.playList.length) {
+	  },
+	  iconMode(){
+	     return this.getMode === 0 ? 'icon-sequence' : this.getMode === 1 ? 'icon-loop' : 'icon-random'
+	  },	  
+	  selectItem(){},
+	  toggleFavorite(item){
+	     if(this.isFavorite(item)){
+		   this.deleteFavorite(item)
+		 }else{
+		   this.saveFavorite(item)
+		 }  
+	  },
+	  getFavoriteIcon(item){
+	     if(this.isFavorite(item)){
+		    return 'icon-favorite'
+		 }
+		 return 'icon-not-favorite'
+	  },
+	  isFavorite(song){
+	     var index = this.favoriteList.findIndex((item)=>{
+		     return item.id === song.id
+		 })		 
+		 return index > -1;	 
+	  },
+	  deleteOne(song){
+	    this.deleteSong(song);
+        if (!this.getSequenceList.length) {
           this.hide()
-        }
-      },
-      addSong() {
-        this.$refs.addSong.show()
-      },
+        }		
+	  },
+	  addSong(){},
+	  confirmClear(){
+        this.deleteSongList()
+        this.hide()	  
+	  },
+	  resetCurrentIndex(list) {
+		  let index = list.findIndex(item => {
+			return item.id === this.currentSong.id;
+		  });
+		  this.setCurrentIndex(index);
+	  },	  
 	  ...mapMutations({
-	     setMode:"getMode",
-	     setCurrentIndex:"changeCurrentIndex",
-		 setPlayList:"changePlayList"
+	    setPlaylist:"changePlayList",
+		setCurrentIndex:"changeCurrentIndex",
+		setMode:"changeMode"
 	  }),
-      ...mapActions([
-        'deleteSong',
-        'deleteSongList',
-		'saveFavorite',
-		'deleteFavorite'
-      ])
-    },
-    watch: {
-      currentSong(newSong, oldSong) {
-        if (!this.showFlag || newSong.id === oldSong.id) {
-          return
-        }
-        setTimeout(() => {
-          this.scrollToCurrent(newSong)
-        }, 20)
-      }
-    },
-    components: {
+	  ...mapActions(["deleteSongList","deleteSong","deleteFavorite","saveFavorite"])
+	},
+	components: {
       Scroll,
-      Confirm,
-      AddSong
+      Confirm
     }
   }
 </script>

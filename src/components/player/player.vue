@@ -85,10 +85,11 @@
           </progress-circle>
         </div>
         <div class="control">
-          <i class="icon-playlist"></i>
+          <i class="icon-playlist" @click.stop="openPlaylist"></i>
         </div>
       </div>
     </transition>
+	<Playlist ref="Playlist"></Playlist>
     <audio
       ref="audio"
       :src="currentSong.url"
@@ -108,6 +109,7 @@ import { prefixStyle } from "../../common/js/dom";
 import { shuffle } from "../../common/js/util";
 const transform = prefixStyle("transform");
 const transitionDuration = prefixStyle("transitionDuration");
+import Playlist from "../playlist/playlist";
 //Lyric 的api
 //播放歌词
 //play()
@@ -168,6 +170,9 @@ export default {
     open() {
       this.setFullScreen(true);
     },
+	openPlaylist(){
+	   this.$refs.Playlist.show();
+	},
     ready() {
       this.songReady = true;
       this.savePlayHistory(this.currentSong);
@@ -418,7 +423,8 @@ export default {
   components: {
     Scroll,
     ProgressBar,
-    ProgressCircle
+    ProgressCircle,
+	Playlist
   }
 };
 </script>
